@@ -33,36 +33,49 @@ export async function POST(req: NextRequest) {
 
     // Construct the prompt with event details
     const prompt = `
-      You're an AI event planner. Based on the following event details, generate:
-1. An event schedule (with time and activity).
-2. A budget breakdown (categorized with estimated amounts).
-3. A checklist of key planning tasks.
-4. A flow diagram in this format: 
+You're an expert AI event planner. Based on the event details below, generate:
+
+1. A detailed event schedule as an array of objects, each with time and activity.
+2. A **budget breakdown** that distributes **within a total budget of $${event?.budget ?? "N/A"}**. Ensure:
+   - Total adds up to the exact budget.
+   - More budget goes to user's **priority preferences**.
+3. A task checklist of key planning tasks.
+4. A simple **event flow diagram** for React Flow in this format:
 {
   "nodes": [{ "id": "1", "type": "start", "data": { "label": "Start" }, "position": { "x": 50, "y": 100 } }],
   "edges": [{ "id": "e1-2", "source": "1", "target": "2" }]
 }
 
 Event Details:
-- Title: ${event?.eventTitle ?? "N/A"}
-- Type: ${event?.eventType ?? "N/A"}
-- Date: ${event?.eventDate ?? "N/A"}
-- Duration: ${event?.eventDuration ?? "N/A"}
-- Location: ${event?.location ?? "N/A"}
-- Guests: ${event?.numberOfGuests ?? "N/A"}
-- Preferences: Theme - ${event?.preferences?.theme ?? "N/A"}, Colors - ${event?.preferences?.colors?.join(", ") ?? "N/A"}, Activities - ${event?.preferences?.activities?.join(", ") ?? "N/A"}
+- Title: ${event?.eventTitle}
+- Type: ${event?.eventType}
+- Date: ${event?.eventDate}
+- Duration: ${event?.eventDuration}
+- Location: ${event?.location}
+- Guests: ${event?.numberOfGuests}
+- Total Budget: $${event?.budget}
+- Theme: ${event?.preferences?.theme}
+- Preferred Colors: ${event?.preferences?.colors?.join(", ")}
+- Preferred Activities: ${event?.preferences?.activities?.join(", ")}
+- Budget Priorities: ${event?.preferences?.budgetPriority?.join(", ") ?? "None"}
 
-Output JSON format:
+Output JSON format (strictly match this):
 {
-  "eventSchedule": [...],
-  "budgetBreakdown": {...},
-  "taskChecklist": [...],
+  "eventSchedule": [ { "time": "10:00 AM", "activity": "Guest Arrival" }, ... ],
+  "budgetBreakdown": {
+    "venue": 1000,
+    "catering": 800,
+    "decorations": 400,
+    ...
+  },
+  "taskChecklist": [ "Book venue", "Confirm vendors", ... ],
   "eventFlowDiagram": {
     "nodes": [...],
     "edges": [...]
   }
 }
-    `;
+`;
+
     console.log("Constructed prompt:", prompt);
 
     // Generate content using Google GenAI

@@ -1,21 +1,28 @@
 "use client";
 
 import React, { useState } from "react";
+import { useParams } from "next/navigation"; // Import useParams to get the eventId from the URL
 
-export default function GenerateCookieRecipes() {
+export default function GenerateEventSummary() {
   const [output, setOutput] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const { eventId } = useParams(); // Get the eventId from the URL
 
   const handleGenerate = async () => {
+    if (!eventId) {
+      console.error("Event ID is missing from the URL.");
+      setOutput("Event ID is missing from the URL.");
+      return;
+    }
+
     setLoading(true);
     setOutput(null);
 
     try {
-      const eventId = "jInCYtLBUt1HVa37peqV"; // Replace with the actual eventId
-      const response = await fetch("/api/generate/testing", {
+      const response = await fetch("/api/generate/eventdata", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ eventId }), // Include eventId in the request body
+        body: JSON.stringify({ eventId }), // Use eventId from the URL
       });
 
       if (!response.ok) {

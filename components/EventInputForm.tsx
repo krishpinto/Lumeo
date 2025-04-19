@@ -29,6 +29,7 @@ export default function EventInputForm() {
     numberOfGuests: 0,
     preferredVendor: "",
     budgetAllocationPreference: "",
+    budget: 0, // New field for budget
   });
 
   const handleChange = (
@@ -69,6 +70,7 @@ export default function EventInputForm() {
         eventDuration: formData.eventDuration,
         location: formData.location,
         numberOfGuests: Number(formData.numberOfGuests),
+        budget: Number(formData.budget), // Save the budget
         createdAt: serverTimestamp(),
       });
 
@@ -147,6 +149,15 @@ export default function EventInputForm() {
             name="numberOfGuests"
             placeholder="Number of Guests"
             value={formData.numberOfGuests}
+            onChange={handleChange}
+            className="w-full input input-bordered"
+            required
+          />
+          <input
+            type="number"
+            name="budget"
+            placeholder="Budget (e.g. 5000)"
+            value={formData.budget}
             onChange={handleChange}
             className="w-full input input-bordered"
             required
