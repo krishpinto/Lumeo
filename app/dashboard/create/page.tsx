@@ -1,17 +1,14 @@
+// app/dashboard/create/page.tsx
 "use client";
 
-import React, { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import EventInputForm from "@/components/EventInputForm";
-import GenerateCookieRecipes from "@/components/GenerateEventSummary";
-export default function CreatePage() {
-  const router = useRouter();
+import React from "react";
+import EnhancedEventInputForm from "@/components/EnhancedEventInputForm";
 
+export default function CreatePage() {
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
-      <EventInputForm />
-      <GenerateCookieRecipes />
+      <h1 className="text-2xl font-bold mb-4">Create Event</h1>
+      <EnhancedEventInputForm />
     </div>
   );
 }
