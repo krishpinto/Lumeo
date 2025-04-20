@@ -3,7 +3,7 @@
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import EventInputForm from "@/components/EventInputForm";
-import GenerateCookieRecipes from "@/components/testbutton";
+import GenerateCookieRecipes from "@/components/GenerateEventSummary";
 export default function CreatePage() {
   const router = useRouter();
 

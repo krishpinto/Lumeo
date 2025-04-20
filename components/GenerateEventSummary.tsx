@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useParams } from "next/navigation"; // Import useParams to get the eventId from the URL
 
 export default function GenerateEventSummary() {
-  const [output, setOutput] = useState<string | null>(null);
+  const [output, setOutput] = useState<any>(null); // Allow `output` to store objects
   const [loading, setLoading] = useState(false);
   const { eventId } = useParams(); // Get the eventId from the URL
 
@@ -28,7 +28,7 @@ export default function GenerateEventSummary() {
       if (!response.ok) {
         const errorText = await response.text();
         console.error("Error response:", errorText);
-        setOutput("Failed to generate content.");
+        setOutput(`Failed to generate content: ${errorText}`);
         return;
       }
 
@@ -55,7 +55,14 @@ export default function GenerateEventSummary() {
       {output && (
         <div className="mt-4 p-4 bg-gray-100 rounded">
           <h3 className="text-lg font-bold">Generated Output:</h3>
-          <pre className="text-sm text-gray-800">{output}</pre>
+          {/* Render the output as JSON */}
+          {typeof output === "object" ? (
+            <pre className="text-sm text-gray-800">
+              {JSON.stringify(output, null, 2)}
+            </pre>
+          ) : (
+            <p>{output}</p>
+          )}
         </div>
       )}
     </div>
