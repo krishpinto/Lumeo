@@ -18,11 +18,11 @@ export default function SocialMediaPosts({ eventId, eventOutput, refreshEventOut
 
   // Available platforms
   const platforms = [
-    { id: "twitter", name: "Twitter", icon: "🐦", color: "bg-blue-400" },
-    { id: "instagram", name: "Instagram", icon: "📸", color: "bg-pink-500" },
-    { id: "facebook", name: "Facebook", icon: "👍", color: "bg-blue-600" },
-    { id: "linkedin", name: "LinkedIn", icon: "💼", color: "bg-blue-700" },
-    { id: "email", name: "Email", icon: "📧", color: "bg-gray-500" },
+    { id: "twitter", name: "Twitter", icon: "🐦", color: "bg-blue-600" },
+    { id: "instagram", name: "Instagram", icon: "📸", color: "bg-pink-600" },
+    { id: "facebook", name: "Facebook", icon: "👍", color: "bg-blue-700" },
+    { id: "linkedin", name: "LinkedIn", icon: "💼", color: "bg-blue-800" },
+    { id: "email", name: "Email", icon: "📧", color: "bg-gray-600" },
   ];
 
   const generatePost = async () => {
@@ -97,12 +97,12 @@ export default function SocialMediaPosts({ eventId, eventOutput, refreshEventOut
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
-      <h2 className="text-xl font-semibold mb-4">Generate Social Media Posts</h2>
+    <div className=" p-6 rounded-lg shadow-md">
+      <h2 className="text-xl font-semibold mb-4 text-gray-100">Generate Social Media Posts</h2>
 
       {!eventOutput && (
-        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <p className="text-yellow-700">
+        <div className="mb-6 p-4 bg-yellow-900/30 border border-yellow-700 rounded-lg">
+          <p className="text-yellow-400">
             You need to generate event data first before creating social media posts. Go to the "Event Details" tab and click on "Generate Event Data".
           </p>
         </div>
@@ -111,7 +111,7 @@ export default function SocialMediaPosts({ eventId, eventOutput, refreshEventOut
       <div className="space-y-6">
         {/* Platform selection */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-300 mb-2">
             Select Platform
           </label>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
@@ -120,8 +120,8 @@ export default function SocialMediaPosts({ eventId, eventOutput, refreshEventOut
                 key={platform.id}
                 className={`border rounded-lg p-3 cursor-pointer transition-all ${
                   selectedPlatform === platform.id
-                    ? "border-blue-500 bg-blue-50"
-                    : "border-gray-200 hover:border-blue-300"
+                    ? "border-blue-500  bg-gray-800 shadow-[0_0_10px_rgba(59,130,246,0.5)]"
+                    : "border-gray-700  hover:border-blue-400 hover:border-opacity-50"
                 }`}
                 onClick={() => setSelectedPlatform(platform.id)}
               >
@@ -129,9 +129,9 @@ export default function SocialMediaPosts({ eventId, eventOutput, refreshEventOut
                   <span className={`block h-10 w-10 mx-auto mb-2 rounded-full ${platform.color} flex items-center justify-center text-lg`}>
                     {platform.icon}
                   </span>
-                  <h3 className="font-medium">{platform.name}</h3>
+                  <h3 className="font-medium text-gray-200">{platform.name}</h3>
                   {postExists(platform.id) && (
-                    <span className="text-xs text-green-600">
+                    <span className="text-xs text-green-400">
                       Generated
                     </span>
                   )}
@@ -142,14 +142,14 @@ export default function SocialMediaPosts({ eventId, eventOutput, refreshEventOut
         </div>
 
         {/* Platform info */}
-        <div className="p-4 bg-gray-50 rounded-lg">
-          <h3 className="font-medium mb-2">
+        <div className="p-4 bg-gray-800 rounded-lg border border-gray-700">
+          <h3 className="font-medium mb-2 text-gray-200">
             {selectedPlatform.charAt(0).toUpperCase() + selectedPlatform.slice(1)} Post Guidelines
           </h3>
-          <p className="text-sm text-gray-600 mb-2">
+          <p className="text-sm text-gray-400 mb-2">
             Character Limit: {getCharacterLimit(selectedPlatform)}
           </p>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-400">
             {selectedPlatform === 'twitter' && "Short, concise with hashtags. Keep it conversational and direct."}
             {selectedPlatform === 'instagram' && "Visual-focused with hashtags (up to 30). More descriptive and inspirational."}
             {selectedPlatform === 'facebook' && "Medium-length with optional hashtags. Engaging and informational in tone."}
@@ -163,7 +163,7 @@ export default function SocialMediaPosts({ eventId, eventOutput, refreshEventOut
           <button
             onClick={generatePost}
             disabled={loading || !eventOutput}
-            className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 flex items-center justify-center"
+            className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-700 disabled:text-gray-400 flex items-center justify-center"
           >
             {loading ? (
               <>
@@ -179,13 +179,13 @@ export default function SocialMediaPosts({ eventId, eventOutput, refreshEventOut
           </button>
 
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700">
+            <div className="p-3 bg-red-900/30 border border-red-700 rounded-lg text-red-400">
               {error}
             </div>
           )}
 
           {success && (
-            <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-green-700">
+            <div className="p-3 bg-green-900/30 border border-green-700 rounded-lg text-green-400">
               {success}
             </div>
           )}
@@ -193,14 +193,14 @@ export default function SocialMediaPosts({ eventId, eventOutput, refreshEventOut
 
         {/* Generated posts */}
         {eventOutput?.socialPosts && Object.keys(eventOutput.socialPosts).length > 0 && (
-          <div className="mt-8 pt-6 border-t">
-            <h3 className="text-lg font-medium mb-3">Generated Social Media Posts</h3>
+          <div className="mt-8 pt-6 border-t border-gray-700">
+            <h3 className="text-lg font-medium mb-3 text-gray-200">Generated Social Media Posts</h3>
             <div className="space-y-4">
               {Object.entries(eventOutput.socialPosts).map(([platform, postData]: [string, any]) => {
                 const platformObj = platforms.find(p => p.id === platform);
                 return (
-                  <div key={platform} className="border rounded-lg overflow-hidden">
-                    <div className={`${platformObj?.color || 'bg-gray-500'} p-3 flex justify-between items-center text-white`}>
+                  <div key={platform} className="border border-gray-700 rounded-lg overflow-hidden">
+                    <div className={`${platformObj?.color || 'bg-gray-600'} p-3 flex justify-between items-center text-white`}>
                       <div className="flex items-center">
                         <span className="text-2xl mr-2">{platformObj?.icon || '📱'}</span>
                         <h4 className="font-medium capitalize">{platform}</h4>
@@ -213,13 +213,13 @@ export default function SocialMediaPosts({ eventId, eventOutput, refreshEventOut
                         {copiedPlatform === platform ? <Check size={18} /> : <Clipboard size={18} />}
                       </button>
                     </div>
-                    <div className="p-4 bg-white">
+                    <div className="p-4 bg-gray-800">
                       {platform === 'email' && postData.subject && (
                         <div className="mb-2">
-                          <span className="font-medium">Subject:</span> {postData.subject}
+                          <span className="font-medium text-gray-300">Subject:</span> <span className="text-gray-200">{postData.subject}</span>
                         </div>
                       )}
-                      <div className="whitespace-pre-wrap text-gray-800">
+                      <div className="whitespace-pre-wrap text-gray-300">
                         {postData.content}
                       </div>
                       <div className="mt-2 text-xs text-gray-500 flex justify-between">

@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "../context/AuthContext";
-import { setAuthCookie } from "../../lib/cookies";
+import { useAuth } from "../../context/AuthContext";
+import { setAuthCookie } from "../../../lib/cookies";
 
 export default function Login() {
   const [error, setError] = useState<string>("");

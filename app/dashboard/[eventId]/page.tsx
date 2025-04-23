@@ -149,6 +149,7 @@ export default function EventDetailsPage() {
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">{event.eventTitle}</h1>
 
+      {/* the tabs control for the events */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="w-full justify-start overflow-x-auto">
           <TabsTrigger value="details">Event Details</TabsTrigger>
@@ -174,7 +175,7 @@ export default function EventDetailsPage() {
         </TabsList>
 
         <TabsContent value="details" className="mt-6">
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className= "p-6 rounded-lg shadow-sm border">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <h2 className="text-xl font-semibold mb-4">Basic Information</h2>
@@ -244,11 +245,11 @@ export default function EventDetailsPage() {
 
         <TabsContent value="schedule" className="mt-6">
           {eventOutput && (
-            <div className="bg-white p-6 rounded-lg shadow-sm border">
+            <div className=" p-6 rounded-lg shadow-sm border">
               <h2 className="text-xl font-semibold mb-4">Event Schedule</h2>
               <div className="overflow-x-auto">
-                <table className="min-w-full bg-white">
-                  <thead className="bg-gray-100">
+                <table className="min-w-full">
+                  <thead className="">
                     <tr>
                       <th className="py-2 px-4 border-b text-left">Time</th>
                       <th className="py-2 px-4 border-b text-left">Activity</th>
@@ -256,7 +257,7 @@ export default function EventDetailsPage() {
                   </thead>
                   <tbody>
                     {eventOutput.eventSchedule.map((item: any, index: number) => (
-                      <tr key={index} className={index % 2 === 0 ? "bg-gray-50" : ""}>
+                      <tr key={index} className={index % 2 === 0 ? "" : ""}>
                         <td className="py-2 px-4 border-b">{item.time}</td>
                         <td className="py-2 px-4 border-b">{item.activity}</td>
                       </tr>
@@ -270,11 +271,11 @@ export default function EventDetailsPage() {
 
         <TabsContent value="budget" className="mt-6">
           {eventOutput && (
-            <div className="bg-white p-6 rounded-lg shadow-sm border">
+            <div className=" p-6 rounded-lg shadow-sm border">
               <h2 className="text-xl font-semibold mb-4">Budget Breakdown</h2>
               <div className="overflow-x-auto">
-                <table className="min-w-full bg-white">
-                  <thead className="bg-gray-100">
+                <table className="min-w-full ">
+                  <thead className="">
                     <tr>
                       <th className="py-2 px-4 border-b text-left">Category</th>
                       <th className="py-2 px-4 border-b text-left">Amount</th>
@@ -283,7 +284,7 @@ export default function EventDetailsPage() {
                   <tbody>
                     {Object.entries(eventOutput.budgetBreakdown).map(
                       ([category, amount]: [string, any], index: number) => (
-                        <tr key={index} className={index % 2 === 0 ? "bg-gray-50" : ""}>
+                        <tr key={index} className={index % 2 === 0 ? "" : ""}>
                           <td className="py-2 px-4 border-b capitalize">{category}</td>
                           <td className="py-2 px-4 border-b">${amount}</td>
                         </tr>
@@ -298,11 +299,11 @@ export default function EventDetailsPage() {
 
         <TabsContent value="tasks" className="mt-6">
           {eventOutput && (
-            <div className="bg-white p-6 rounded-lg shadow-sm border">
+            <div className=" p-6 rounded-lg shadow-sm border">
               <h2 className="text-xl font-semibold mb-4">Task Checklist</h2>
               <div className="space-y-2">
                 {eventOutput.taskChecklist.map((task: any, index: number) => (
-                  <div key={task.id || index} className="flex items-center p-2 border rounded hover:bg-gray-50">
+                  <div key={task.id || index} className="flex items-center p-2 border rounded hover:">
                     <input type="checkbox" id={`task-${index}`} className="mr-2" checked={task.task_done} readOnly />
                     <label htmlFor={`task-${index}`} className="flex-grow">
                       {task.task}
@@ -319,7 +320,7 @@ export default function EventDetailsPage() {
 
         <TabsContent value="flow" className="mt-6">
           {eventOutput && (
-            <div className="bg-white p-6 rounded-lg shadow-sm border">
+            <div className=" p-6 rounded-lg shadow-sm border">
               <h2 className="text-xl font-semibold mb-4">Event Flow Diagram</h2>
               <div style={{ width: "100%", height: "600px" }}>
                 <EventFlowDiagram eventId={eventId as string} />
@@ -350,28 +351,6 @@ export default function EventDetailsPage() {
           />
         </TabsContent>
       </Tabs>
-
-      {/* Quick document access panel - visible on all tabs except documents and view-documents */}
-      {eventOutput?.eventDocuments &&
-        Object.keys(eventOutput.eventDocuments).length > 0 &&
-        activeTab !== "documents" &&
-        activeTab !== "view-documents" && (
-          <div className="mt-6 p-4 bg-white rounded-lg shadow-sm border">
-            <h3 className="text-lg font-medium mb-3">Quick Document Access</h3>
-            <div className="flex flex-wrap gap-3">
-              {Object.entries(eventOutput.eventDocuments).map(([docType, docData]: [string, any]) => (
-                <button
-                  key={docType}
-                  onClick={() => viewDocument(docType)}
-                  className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90 flex items-center"
-                >
-                  <span className="mr-2">{docType === "invitation" ? "✉️" : "📋"}</span>
-                  {docType.charAt(0).toUpperCase() + docType.slice(1)}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
     </div>
   )
 }

@@ -72,12 +72,12 @@ export default function EventDocuments({ eventId, eventOutput, refreshEventOutpu
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
-      <h2 className="text-xl font-semibold mb-4">Generate Event Documents</h2>
+    <div className=" p-6 rounded-lg shadow-md">
+      <h2 className="text-xl font-semibold mb-4 text-gray-100">Generate Event Documents</h2>
 
       {!eventOutput && (
-        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <p className="text-yellow-700">
+        <div className="mb-6 p-4 bg-yellow-900/30 border border-yellow-700 rounded-lg">
+          <p className="text-yellow-400">
             You need to generate event data first before creating documents. Go to the "Event Details" tab and click on "Generate Event Data".
           </p>
         </div>
@@ -86,7 +86,7 @@ export default function EventDocuments({ eventId, eventOutput, refreshEventOutpu
       <div className="space-y-6">
         {/* Document type selection */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-300 mb-2">
             Document Type
           </label>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -95,17 +95,17 @@ export default function EventDocuments({ eventId, eventOutput, refreshEventOutpu
                 key={docType.id}
                 className={`border rounded-lg p-4 cursor-pointer transition-all ${
                   selectedDocType === docType.id
-                    ? "border-blue-500 bg-blue-50"
-                    : "border-gray-200 hover:border-blue-300"
+                    ? "border-blue-500  bg-gray-800 shadow-[0_0_10px_rgba(59,130,246,0.5)]"
+                    : "border-gray-700  hover:border-blue-400 hover:border-opacity-50"
                 }`}
                 onClick={() => setSelectedDocType(docType.id)}
               >
                 <div className="flex items-center">
                   <span className="text-2xl mr-3">{docType.icon}</span>
                   <div>
-                    <h3 className="font-medium">{docType.name}</h3>
+                    <h3 className="font-medium text-gray-200">{docType.name}</h3>
                     {documentExists(docType.id) && (
-                      <span className="text-xs text-green-600">
+                      <span className="text-xs text-green-400">
                         Already generated - will be replaced
                       </span>
                     )}
@@ -118,7 +118,7 @@ export default function EventDocuments({ eventId, eventOutput, refreshEventOutpu
 
         {/* Theme selection */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-300 mb-2">
             Design Theme
           </label>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -127,14 +127,14 @@ export default function EventDocuments({ eventId, eventOutput, refreshEventOutpu
                 key={theme.id}
                 className={`border rounded-lg p-3 cursor-pointer transition-all ${
                   selectedTheme === theme.id
-                    ? "border-blue-500 bg-blue-50"
-                    : "border-gray-200 hover:border-blue-300"
+                    ? "border-blue-500 bg-gray-800 shadow-[0_0_10px_rgba(59,130,246,0.5)]"
+                    : "border-gray-700  hover:border-blue-400 hover:border-opacity-50"
                 }`}
                 onClick={() => setSelectedTheme(theme.id)}
               >
                 <div className="text-center">
                   <span className="block h-8 w-8 mx-auto mb-2 rounded-full bg-gradient-to-br from-blue-400 to-purple-500"></span>
-                  <h3 className="font-medium">{theme.name}</h3>
+                  <h3 className="font-medium text-gray-200">{theme.name}</h3>
                 </div>
               </div>
             ))}
@@ -146,7 +146,7 @@ export default function EventDocuments({ eventId, eventOutput, refreshEventOutpu
           <button
             onClick={generateDocument}
             disabled={loading || !eventOutput}
-            className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 flex items-center justify-center"
+            className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-700 disabled:text-gray-400 flex items-center justify-center"
           >
             {loading ? (
               <>
@@ -162,13 +162,13 @@ export default function EventDocuments({ eventId, eventOutput, refreshEventOutpu
           </button>
 
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700">
+            <div className="p-3 bg-red-900/30 border border-red-700 rounded-lg text-red-400">
               {error}
             </div>
           )}
 
           {success && (
-            <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-green-700">
+            <div className="p-3 bg-green-900/30 border border-green-700 rounded-lg text-green-400">
               {success}
             </div>
           )}
@@ -176,17 +176,17 @@ export default function EventDocuments({ eventId, eventOutput, refreshEventOutpu
 
         {/* Existing documents section */}
         {eventOutput?.eventDocuments && Object.keys(eventOutput.eventDocuments).length > 0 && (
-          <div className="mt-8 pt-6 border-t">
-            <h3 className="text-lg font-medium mb-3">Already Generated Documents</h3>
+          <div className="mt-8 pt-6 border-t border-gray-700">
+            <h3 className="text-lg font-medium mb-3 text-gray-200">Already Generated Documents</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {Object.entries(eventOutput.eventDocuments).map(([docType, docData]: [string, any]) => (
-                <div key={docType} className="flex items-center p-4 border rounded-lg bg-gray-50">
+                <div key={docType} className="flex items-center p-4 border border-gray-700 rounded-lg bg-gray-800">
                   <span className="text-2xl mr-3">
                     {docType === 'invitation' ? '✉️' : '📋'}
                   </span>
                   <div>
-                    <h4 className="font-medium capitalize">{docType}</h4>
-                    <p className="text-sm text-gray-600">
+                    <h4 className="font-medium capitalize text-gray-200">{docType}</h4>
+                    <p className="text-sm text-gray-400">
                       Theme: {docData.theme.charAt(0).toUpperCase() + docData.theme.slice(1)}
                     </p>
                     <p className="text-xs text-gray-500">

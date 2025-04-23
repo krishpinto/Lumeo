@@ -1,0 +1,222 @@
+"use client";
+
+import { cn } from "@/lib/utils";
+import { ArrowRightIcon, LogOut, XIcon, Menu as MenuIcon } from "lucide-react";
+import Link from "next/link";
+import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
+import { useAuth } from "@/app/context/AuthContext";
+import { Button } from "../ui/button";
+import Menu from "./menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+const Navbar = () => {
+  const pathname = usePathname();
+  const { currentUser, logout } = useAuth();
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setIsOpen(false);
+  }, [pathname]);
+
+  // Don't render navbar on dashboard pages
+  if (pathname?.startsWith("/dashboard")) {
+    return null;
+  }
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error("Failed to logout:", error);
+    }
+  };
+
+  // Determine authentication directly from currentUser
+  const isAuthenticated = !!currentUser;
+
+  console.log("Auth state in Navbar:", { isAuthenticated, currentUser });
+
+  return (
+    <>
+      {/* Debug panel */}
+      <div className="fixed bottom-4 right-4 bg-black text-white p-2 z-50">
+        Auth Status: {isAuthenticated ? "Logged In" : "Logged Out"}
+        <pre>{JSON.stringify(currentUser?.email || "No user", null, 2)}</pre>
+      </div>
+
+      <div className="relative w-full h-full">
+        <header
+          className={cn(
+            "fixed top-4 inset-x-0 mx-auto max-w-6xl px-2 md:px-12 z-[100]",
+            isOpen ? "h-auto" : "h-12"
+          )}
+        >
+          <div className="backdrop-blur-lg rounded-xl lg:rounded-2xl border border-[rgba(124,124,124,0.2)] px-4 flex flex-col">
+            {/* Main Navbar Row */}
+            <div className="flex items-center justify-between w-full py-2">
+              {/* Logo */}
+              <div className="flex items-center">
+                <Link
+                  href="/"
+                  className="text-lg font-semibold text-foreground"
+                >
+                  YourLogo
+                </Link>
+
+                {/* Desktop Menu */}
+                <div className="hidden lg:flex ml-4">
+                  <Menu orientation="horizontal" />
+                </div>
+              </div>
+
+              {/* Auth Section */}
+              <div className="flex items-center gap-2 lg:gap-4">
+                {isAuthenticated ? (
+                  <>
+                    {/* User is logged in */}
+                    <Button
+                      size="sm"
+                      variant="default"
+                      asChild
+                      className="hidden sm:flex"
+                    >
+                      <Link href="/dashboard">Dashboard</Link>
+                    </Button>
+
+                    <div className="relative flex items-center">
+                      <Avatar className="h-8 w-8 flex-shrink-0">
+                        <AvatarImage src={currentUser?.photoURL || ""} alt={currentUser?.displayName || "User"} />
+                        <AvatarFallback>
+                          {currentUser?.displayName?.[0] || 
+                           currentUser?.email?.[0]?.toUpperCase() || 
+                           "U"}
+                        </AvatarFallback>
+                      </Avatar>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {/* User is not logged in */}
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      asChild
+                      className="hover:translate-y-0 hover:scale-100"
+                    >
+                      <Link href="/auth/login">Login</Link>
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="default"
+                      asChild
+                      className="hidden sm:flex"
+                    >
+                      <Link href="/auth/signup">
+                        Start for free
+                        <ArrowRightIcon className="w-4 h-4 ml-2 hidden lg:block" />
+                      </Link>
+                    </Button>
+                  </>
+                )}
+
+                {/* Mobile menu toggle */}
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => setIsOpen((prev) => !prev)}
+                  className="lg:hidden p-2 w-8 h-8"
+                  aria-label={isOpen ? "Close menu" : "Open menu"}
+                >
+                  {isOpen ? (
+                    <XIcon className="w-4 h-4" />
+                  ) : (
+                    <MenuIcon className="w-4 h-4" />
+                  )}
+                </Button>
+              </div>
+            </div>
+
+            {/* Mobile Menu Dropdown */}
+            {isOpen && (
+              <div className="lg:hidden py-4 border-t border-border/30 animate-in fade-in slide-in-from-top duration-300">
+                {/* Mobile Navigation Links */}
+                <div className="mb-4">
+                  <Menu orientation="vertical" />
+                </div>
+
+                {/* Auth Actions for Mobile */}
+                <div className="space-y-2 pt-2 border-t border-border/30">
+                  {isAuthenticated ? (
+                    <>
+                      <div className="flex items-center gap-3 p-2">
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage src={currentUser?.photoURL || ""} alt={currentUser?.displayName || "User"} />
+                          <AvatarFallback>
+                            {currentUser?.displayName?.[0] || 
+                             currentUser?.email?.[0]?.toUpperCase() || 
+                             "U"}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex flex-col">
+                          <span className="text-sm font-medium truncate">
+                            {currentUser?.displayName || "User"}
+                          </span>
+                          <span className="text-xs text-muted-foreground truncate">
+                            {currentUser?.email}
+                          </span>
+                        </div>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="default"
+                        asChild
+                        className="w-full"
+                      >
+                        <Link href="/dashboard">Dashboard</Link>
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="w-full flex items-center gap-2 text-red-500 hover:text-red-600 hover:bg-red-50"
+                        onClick={handleLogout}
+                      >
+                        <LogOut className="h-4 w-4" />
+                        <span>Logout</span>
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        asChild
+                        className="w-full"
+                      >
+                        <Link href="/auth/login">Login</Link>
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="default"
+                        asChild
+                        className="w-full"
+                      >
+                        <Link href="/auth/signup">
+                          Start for free
+                          <ArrowRightIcon className="w-4 h-4 ml-2" />
+                        </Link>
+                      </Button>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </header>
+      </div>
+    </>
+  );
+};
+
+export default Navbar;

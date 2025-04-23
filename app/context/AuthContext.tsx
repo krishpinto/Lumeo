@@ -1,5 +1,4 @@
 // app/context/AuthContext.tsx
-
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
@@ -11,7 +10,7 @@ import {
 } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { auth, provider } from '@/lib/firebase'
-// Define types for context
+
 interface AuthContextType {
   currentUser: User | null;
   signInWithGoogle: () => Promise<User>;
@@ -19,7 +18,6 @@ interface AuthContextType {
   loading: boolean;
 }
 
-// Create the authentication context with default values
 const AuthContext = createContext<AuthContextType>({
   currentUser: null,
   signInWithGoogle: async () => { throw new Error('Not implemented'); },
@@ -27,17 +25,14 @@ const AuthContext = createContext<AuthContextType>({
   loading: true
 });
 
-// Custom hook to use the auth context
 export function useAuth() {
   return useContext(AuthContext);
 }
 
-// Props for AuthProvider
 interface AuthProviderProps {
   children: ReactNode;
 }
 
-// Export the AuthProvider component
 export function AuthProvider({ children }: AuthProviderProps) {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -47,8 +42,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const signInWithGoogle = async (): Promise<User> => {
     try {
       const result = await signInWithPopup(auth, provider);
+      console.log("Google sign-in successful:", result.user.email);
       return result.user;
     } catch (error) {
+      console.error("Google sign-in failed:", error);
       throw error;
     }
   };
@@ -56,25 +53,38 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // Logout the current user
   const logout = async (): Promise<void> => {
     try {
+      console.log("Logging out user:", currentUser?.email);
       await signOut(auth);
-      router.push('/login');
+      router.push('/auth/login'); // Make sure this path is correct
     } catch (error) {
+      console.error("Logout failed:", error);
       throw error;
     }
   };
 
   // Listen for auth state changes
   useEffect(() => {
+    console.log("Setting up auth state listener");
     const unsubscribe = onAuthStateChanged(auth, (user) => {
+      console.log("Auth state changed:", user ? user.email : "No user");
       setCurrentUser(user);
       setLoading(false);
     });
 
     // Cleanup subscription
-    return unsubscribe;
+    return () => {
+      console.log("Cleaning up auth state listener");
+      unsubscribe();
+    };
   }, []);
 
-  // Context value to be provided
+  // Log when context value changes
+  useEffect(() => {
+    console.log("Auth context value updated:", 
+      currentUser ? `User: ${currentUser.email}` : "No user", 
+      "Loading:", loading);
+  }, [currentUser, loading]);
+
   const value: AuthContextType = {
     currentUser,
     signInWithGoogle,
@@ -89,5 +99,4 @@ export function AuthProvider({ children }: AuthProviderProps) {
   );
 }
 
-// Export AuthContext directly as well
 export { AuthContext };

@@ -7,7 +7,7 @@ export function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
   
   // Define public routes
-  const isPublicRoute = ['/login', '/'].includes(path);
+  const isPublicRoute = ['/auth/login', '/auth/signup'].includes(path);
   
   // Get the auth token from cookie
   const authToken = request.cookies.get('auth-token')?.value || '';
@@ -15,7 +15,7 @@ export function middleware(request: NextRequest) {
   // If the user is not authenticated and trying to access a protected route,
   // redirect to the login page
   if (!authToken && !isPublicRoute) {
-    return NextResponse.redirect(new URL('/login', request.url));
+    return NextResponse.redirect(new URL('/auth/login', request.url));
   }
 
   // If the user is authenticated and trying to access login,
