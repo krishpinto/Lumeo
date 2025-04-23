@@ -40,11 +40,7 @@ const Navbar = () => {
 
   return (
     <>
-      {/* Debug panel */}
-      <div className="fixed bottom-4 right-4 bg-black text-white p-2 z-50">
-        Auth Status: {isAuthenticated ? "Logged In" : "Logged Out"}
-        <pre>{JSON.stringify(currentUser?.email || "No user", null, 2)}</pre>
-      </div>
+
 
       <div className="relative w-full h-full">
         <header
