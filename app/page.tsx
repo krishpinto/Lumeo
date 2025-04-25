@@ -2,6 +2,7 @@ import Hero from "@/components/home/hero";
 import Companies from "@/components/home/companies";
 import Features from "@/components/home/features";
 import Benifits from "@/components/home/benifits";
+import Integration from "@/components/home/integration";
 
 export default function Home() {
   const user = null; // Replace 'null' with the actual logic to determine if a user is logged in
@@ -15,6 +16,7 @@ export default function Home() {
         <Companies />
         <Features />
         <Benifits />  
+        <Integration />
       </div>
     </div>
   );
