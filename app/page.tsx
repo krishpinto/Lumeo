@@ -14,6 +14,7 @@ export default function Home() {
       <div className="absolute scrollbar-hide pt-30 size-full">
         <Hero />
         <Companies />
+        <h1>Lumeo</h1>
         <Features />
         <Benifits />  
         <Integration />
