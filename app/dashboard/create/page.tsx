@@ -75,7 +75,9 @@ type FormValues = z.infer<typeof formSchema>;
 export default function CreatePage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("details");
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -100,6 +102,9 @@ export default function CreatePage() {
   // Function to generate event data using the API
   const generateEventData = async (eventId: string) => {
     try {
+      // Show generation in progress
+      setStatusMessage("Generating event data. This may take a few moments...");
+
       const response = await fetch("/api/generate/eventdata", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -109,19 +114,24 @@ export default function CreatePage() {
       if (!response.ok) {
         const errorText = await response.text();
         console.error("Error generating event data:", errorText);
+        setError("Failed to generate event data. Please try again later.");
         return false;
       }
 
       const data = await response.json();
+      setStatusMessage("Event data generated successfully!");
       return data.success;
     } catch (error) {
       console.error("Failed to generate event data:", error);
+      setError("An unexpected error occurred. Please try again later.");
       return false;
     }
   };
 
   const onSubmit = async (data: FormValues) => {
     setIsSubmitting(true);
+    setError(null);
+    setStatusMessage("Creating your event...");
 
     try {
       const auth = getAuth();
@@ -154,7 +164,7 @@ export default function CreatePage() {
         budget: data.budget,
         description: data.description,
         preferences: {
-          theme: data.preferences.theme,
+          theme: data.preferences.theme || "",
           colors: data.preferences.colors
             ? data.preferences.colors.split(",").map((item) => item.trim())
             : [],
@@ -165,30 +175,38 @@ export default function CreatePage() {
             ? [data.preferences.budgetPriority]
             : [],
         },
-        preferredVendor: data.preferredVendor,
+        preferredVendor: data.preferredVendor || "",
         createdAt: serverTimestamp(),
       };
 
       // Add the event to the "events" collection
       const eventRef = await addDoc(collection(db, "events"), eventData);
       const eventId = eventRef.id;
+      
+      setStatusMessage("Event created successfully! Generating event data...");
 
-      // Generate event data immediately after creating the event
-      const generationSuccess = await generateEventData(eventId);
-
-      if (generationSuccess) {
-        console.log("Event created and data generated successfully!");
-      } else {
-        console.warn(
-          "Event created but data generation failed. Continuing to dashboard."
-        );
+      // Generate event data with the API
+      try {
+        const generationSuccess = await generateEventData(eventId);
+        
+        if (generationSuccess) {
+          console.log("Event data generated successfully!");
+          setStatusMessage("Event data generated successfully!");
+        } else {
+          console.warn("Event created but data generation failed.");
+          setStatusMessage("Event created but data generation failed. You can try again from the dashboard.");
+        }
+        
+        // Navigate to the dashboard after everything is done
+        router.push(`/dashboard/${eventId}`);
+      } catch (genError) {
+        console.error("Error generating event data:", genError);
+        // Still navigate to dashboard even if generation fails
+        router.push(`/dashboard/${eventId}`);
       }
-
-      // Navigate to the event dashboard regardless of generation success
-      router.push(`/dashboard/${eventId}`);
     } catch (err) {
       console.error("Error saving event:", err);
-    } finally {
+      setError("Failed to create event. Please try again.");
       setIsSubmitting(false);
     }
   };
@@ -202,8 +220,8 @@ export default function CreatePage() {
     { value: "workshop", label: "Workshop" },
     { value: "retreat", label: "Retreat" },
     { value: "festival", label: "Festival" },
-    { value: "corporate-retreat", label: "Corporate Retreat" }, // Modified to ensure uniqueness
-    { value: "music-festival", label: "Music Festival" }, // Modified to ensure uniqueness
+    { value: "corporate-retreat", label: "Corporate Retreat" },
+    { value: "music-festival", label: "Music Festival" },
     { value: "concert", label: "Concert" },
     { value: "other", label: "Other" },
   ];
@@ -226,6 +244,20 @@ export default function CreatePage() {
           materials.
         </p>
       </div>
+
+      {error && (
+        <Alert variant="destructive" className="mb-6">
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
+      {statusMessage && !error && (
+        <Alert className="mb-6">
+          <AlertTitle>Status</AlertTitle>
+          <AlertDescription>{statusMessage}</AlertDescription>
+        </Alert>
+      )}
 
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -505,10 +537,16 @@ export default function CreatePage() {
                 >
                   Back to Details
                 </Button>
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting
-                    ? "Creating Event..."
-                    : "Create & Generate Event"}
+                <Button 
+                  type="submit" 
+                  disabled={isSubmitting}
+                  className="relative"
+                >
+                  {isSubmitting ? (
+                    "Creating Event..."
+                  ) : (
+                    "Create & Generate Event"
+                  )}
                 </Button>
               </CardFooter>
             </Card>

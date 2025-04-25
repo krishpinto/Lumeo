@@ -1,5 +1,7 @@
 import Hero from "@/components/home/hero";
 import Companies from "@/components/home/companies";
+import Features from "@/components/home/features";
+import Benifits from "@/components/home/benifits";
 
 export default function Home() {
   const user = null; // Replace 'null' with the actual logic to determine if a user is logged in
@@ -11,6 +13,8 @@ export default function Home() {
       <div className="absolute scrollbar-hide pt-30 size-full">
         <Hero />
         <Companies />
+        <Features />
+        <Benifits />  
       </div>
     </div>
   );

@@ -7,7 +7,8 @@ import { cn } from "@/lib/utils";
 // Define the main navigation items
 const navigationItems = [
   { name: "How it works", href: "/" },
-  { name: "Dashboard", href: "/dashboard" },
+  { name: "Home", href: "/" },
+  { name: "Features", href: "/" },
   // Add more navigation items as needed
 ];
 

@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Clipboard, Check } from "lucide-react";
+import { twitter } from "./logo";
 
 interface SocialMediaPostsProps {
   eventId: string;
@@ -9,7 +10,11 @@ interface SocialMediaPostsProps {
   refreshEventOutput: () => Promise<void>;
 }
 
-export default function SocialMediaPosts({ eventId, eventOutput, refreshEventOutput }: SocialMediaPostsProps) {
+export default function SocialMediaPosts({
+  eventId,
+  eventOutput,
+  refreshEventOutput,
+}: SocialMediaPostsProps) {
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedPlatform, setSelectedPlatform] = useState<string>("twitter");
   const [error, setError] = useState<string | null>(null);
@@ -18,7 +23,7 @@ export default function SocialMediaPosts({ eventId, eventOutput, refreshEventOut
 
   // Available platforms
   const platforms = [
-    { id: "twitter", name: "Twitter", icon: "🐦", color: "bg-blue-600" },
+    { id: "twitter", name: "Twitter", icon: twitter, color: "bg-pink-600" },
     { id: "instagram", name: "Instagram", icon: "📸", color: "bg-pink-600" },
     { id: "facebook", name: "Facebook", icon: "👍", color: "bg-blue-700" },
     { id: "linkedin", name: "LinkedIn", icon: "💼", color: "bg-blue-800" },
@@ -47,13 +52,19 @@ export default function SocialMediaPosts({ eventId, eventOutput, refreshEventOut
 
       const data = await response.json();
       if (data.success) {
-        setSuccess(`${selectedPlatform.charAt(0).toUpperCase() + selectedPlatform.slice(1)} post generated successfully!`);
+        setSuccess(
+          `${
+            selectedPlatform.charAt(0).toUpperCase() + selectedPlatform.slice(1)
+          } post generated successfully!`
+        );
         // Refresh event output to get the new post
         await refreshEventOutput();
       }
     } catch (error) {
       console.error("Error generating post:", error);
-      setError(error instanceof Error ? error.message : "Failed to generate post");
+      setError(
+        error instanceof Error ? error.message : "Failed to generate post"
+      );
     } finally {
       setLoading(false);
     }
@@ -62,17 +73,17 @@ export default function SocialMediaPosts({ eventId, eventOutput, refreshEventOut
   // Copy post content to clipboard
   const copyToClipboard = (platform: string) => {
     if (!eventOutput?.socialPosts?.[platform]) return;
-    
+
     let contentToCopy = eventOutput.socialPosts[platform].content;
-    
+
     // For email, include subject line
-    if (platform === 'email' && eventOutput.socialPosts[platform].subject) {
+    if (platform === "email" && eventOutput.socialPosts[platform].subject) {
       contentToCopy = `Subject: ${eventOutput.socialPosts[platform].subject}\n\n${contentToCopy}`;
     }
-    
+
     navigator.clipboard.writeText(contentToCopy);
     setCopiedPlatform(platform);
-    
+
     // Reset copied status after 2 seconds
     setTimeout(() => {
       setCopiedPlatform(null);
@@ -91,19 +102,23 @@ export default function SocialMediaPosts({ eventId, eventOutput, refreshEventOut
       instagram: 2200,
       facebook: 63206,
       linkedin: 3000,
-      email: 10000
+      email: 10000,
     };
     return limits[platform] || 0;
   };
 
   return (
     <div className=" p-6 rounded-lg shadow-md">
-      <h2 className="text-xl font-semibold mb-4 text-gray-100">Generate Social Media Posts</h2>
+      <h2 className="text-xl font-semibold mb-4 text-gray-100">
+        Generate Social Media Posts
+      </h2>
 
       {!eventOutput && (
         <div className="mb-6 p-4 bg-yellow-900/30 border border-yellow-700 rounded-lg">
           <p className="text-yellow-400">
-            You need to generate event data first before creating social media posts. Go to the "Event Details" tab and click on "Generate Event Data".
+            You need to generate event data first before creating social media
+            posts. Go to the "Event Details" tab and click on "Generate Event
+            Data".
           </p>
         </div>
       )}
@@ -126,14 +141,14 @@ export default function SocialMediaPosts({ eventId, eventOutput, refreshEventOut
                 onClick={() => setSelectedPlatform(platform.id)}
               >
                 <div className="text-center">
-                  <span className={`block h-10 w-10 mx-auto mb-2 rounded-full ${platform.color} flex items-center justify-center text-lg`}>
-                    {platform.icon}
+                  <span
+                    className={`block h-10 w-10 mx-auto mb-2 rounded-full ${platform.color} flex items-center justify-center text-lg`}
+                  >
+                    {typeof platform.icon === "string" ? platform.icon : platform.icon()}
                   </span>
                   <h3 className="font-medium text-gray-200">{platform.name}</h3>
                   {postExists(platform.id) && (
-                    <span className="text-xs text-green-400">
-                      Generated
-                    </span>
+                    <span className="text-xs text-green-400">Generated</span>
                   )}
                 </div>
               </div>
@@ -144,17 +159,24 @@ export default function SocialMediaPosts({ eventId, eventOutput, refreshEventOut
         {/* Platform info */}
         <div className="p-4 bg-gray-800 rounded-lg border border-gray-700">
           <h3 className="font-medium mb-2 text-gray-200">
-            {selectedPlatform.charAt(0).toUpperCase() + selectedPlatform.slice(1)} Post Guidelines
+            {selectedPlatform.charAt(0).toUpperCase() +
+              selectedPlatform.slice(1)}{" "}
+            Post Guidelines
           </h3>
           <p className="text-sm text-gray-400 mb-2">
             Character Limit: {getCharacterLimit(selectedPlatform)}
           </p>
           <p className="text-sm text-gray-400">
-            {selectedPlatform === 'twitter' && "Short, concise with hashtags. Keep it conversational and direct."}
-            {selectedPlatform === 'instagram' && "Visual-focused with hashtags (up to 30). More descriptive and inspirational."}
-            {selectedPlatform === 'facebook' && "Medium-length with optional hashtags. Engaging and informational in tone."}
-            {selectedPlatform === 'linkedin' && "Professional tone with industry-specific hashtags. Focus on business value."}
-            {selectedPlatform === 'email' && "Formal structure with subject line, greeting, body text, and clear call to action."}
+            {selectedPlatform === "twitter" &&
+              "Short, concise with hashtags. Keep it conversational and direct."}
+            {selectedPlatform === "instagram" &&
+              "Visual-focused with hashtags (up to 30). More descriptive and inspirational."}
+            {selectedPlatform === "facebook" &&
+              "Medium-length with optional hashtags. Engaging and informational in tone."}
+            {selectedPlatform === "linkedin" &&
+              "Professional tone with industry-specific hashtags. Focus on business value."}
+            {selectedPlatform === "email" &&
+              "Formal structure with subject line, greeting, body text, and clear call to action."}
           </p>
         </div>
 
@@ -173,7 +195,10 @@ export default function SocialMediaPosts({ eventId, eventOutput, refreshEventOut
             ) : (
               <>
                 <span className="mr-2">✨</span>
-                Generate {selectedPlatform.charAt(0).toUpperCase() + selectedPlatform.slice(1)} Post
+                Generate{" "}
+                {selectedPlatform.charAt(0).toUpperCase() +
+                  selectedPlatform.slice(1)}{" "}
+                Post
               </>
             )}
           </button>
@@ -192,47 +217,80 @@ export default function SocialMediaPosts({ eventId, eventOutput, refreshEventOut
         </div>
 
         {/* Generated posts */}
-        {eventOutput?.socialPosts && Object.keys(eventOutput.socialPosts).length > 0 && (
-          <div className="mt-8 pt-6 border-t border-gray-700">
-            <h3 className="text-lg font-medium mb-3 text-gray-200">Generated Social Media Posts</h3>
-            <div className="space-y-4">
-              {Object.entries(eventOutput.socialPosts).map(([platform, postData]: [string, any]) => {
-                const platformObj = platforms.find(p => p.id === platform);
-                return (
-                  <div key={platform} className="border border-gray-700 rounded-lg overflow-hidden">
-                    <div className={`${platformObj?.color || 'bg-gray-600'} p-3 flex justify-between items-center text-white`}>
-                      <div className="flex items-center">
-                        <span className="text-2xl mr-2">{platformObj?.icon || '📱'}</span>
-                        <h4 className="font-medium capitalize">{platform}</h4>
-                      </div>
-                      <button 
-                        onClick={() => copyToClipboard(platform)}
-                        className="p-2 hover:bg-white hover:bg-opacity-20 rounded"
-                        title="Copy to clipboard"
+        {eventOutput?.socialPosts &&
+          Object.keys(eventOutput.socialPosts).length > 0 && (
+            <div className="mt-8 pt-6 border-t border-gray-700">
+              <h3 className="text-lg font-medium mb-3 text-gray-200">
+                Generated Social Media Posts
+              </h3>
+              <div className="space-y-4">
+                {Object.entries(eventOutput.socialPosts).map(
+                  ([platform, postData]: [string, any]) => {
+                    const platformObj = platforms.find(
+                      (p) => p.id === platform
+                    );
+                    return (
+                      <div
+                        key={platform}
+                        className="border border-gray-700 rounded-lg overflow-hidden"
                       >
-                        {copiedPlatform === platform ? <Check size={18} /> : <Clipboard size={18} />}
-                      </button>
-                    </div>
-                    <div className="p-4 bg-gray-800">
-                      {platform === 'email' && postData.subject && (
-                        <div className="mb-2">
-                          <span className="font-medium text-gray-300">Subject:</span> <span className="text-gray-200">{postData.subject}</span>
+                        <div
+                          className={`${
+                            platformObj?.color || "bg-gray-600"
+                          } p-3 flex justify-between items-center text-white`}
+                        >
+                          <div className="flex items-center">
+                            <span className="text-2xl mr-2">
+                              {typeof platformObj?.icon === "function" ? platformObj.icon() : platformObj?.icon || "📱"}
+                            </span>
+                            <h4 className="font-medium capitalize">
+                              {platform}
+                            </h4>
+                          </div>
+                          <button
+                            onClick={() => copyToClipboard(platform)}
+                            className="p-2 hover:bg-white hover:bg-opacity-20 rounded"
+                            title="Copy to clipboard"
+                          >
+                            {copiedPlatform === platform ? (
+                              <Check size={18} />
+                            ) : (
+                              <Clipboard size={18} />
+                            )}
+                          </button>
                         </div>
-                      )}
-                      <div className="whitespace-pre-wrap text-gray-300">
-                        {postData.content}
+                        <div className="p-4 bg-gray-800">
+                          {platform === "email" && postData.subject && (
+                            <div className="mb-2">
+                              <span className="font-medium text-gray-300">
+                                Subject:
+                              </span>{" "}
+                              <span className="text-gray-200">
+                                {postData.subject}
+                              </span>
+                            </div>
+                          )}
+                          <div className="whitespace-pre-wrap text-gray-300">
+                            {postData.content}
+                          </div>
+                          <div className="mt-2 text-xs text-gray-500 flex justify-between">
+                            <span>
+                              Characters: {postData.characterCount} /{" "}
+                              {getCharacterLimit(platform)}
+                            </span>
+                            <span>
+                              Created:{" "}
+                              {new Date(postData.createdAt).toLocaleString()}
+                            </span>
+                          </div>
+                        </div>
                       </div>
-                      <div className="mt-2 text-xs text-gray-500 flex justify-between">
-                        <span>Characters: {postData.characterCount} / {getCharacterLimit(platform)}</span>
-                        <span>Created: {new Date(postData.createdAt).toLocaleString()}</span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+                    );
+                  }
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          )}
       </div>
     </div>
   );

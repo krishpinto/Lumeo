@@ -49,7 +49,7 @@ export default function Dashboard() {
 
     // Redirect to login if not authenticated and not loading
     if (!loading && (!currentUser || !authCookie)) {
-      router.push("/login");
+      router.push("/auth/login");
     }
   }, [currentUser, loading, router]);
 
