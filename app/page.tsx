@@ -1,8 +1,9 @@
 import Hero from "@/components/home/hero";
 import Companies from "@/components/home/companies";
 import Features from "@/components/home/features";
-import Benifits from "@/components/home/benifits";
+import Benefits from "@/components/home/benefits";
 import Integration from "@/components/home/integration";
+import  Footer  from "@/components/home/footer";
 
 export default function Home() {
   const user = null; // Replace 'null' with the actual logic to determine if a user is logged in
@@ -14,10 +15,10 @@ export default function Home() {
       <div className="absolute scrollbar-hide pt-30 size-full">
         <Hero />
         <Companies />
-        <h1>Lumeo</h1>
-        <Features />
-        <Benifits />  
-        <Integration />
+        <section id="working"><Features /></section>
+        <section id="benefits"><Benefits /></section>
+        <section id="integrations"><Integration /></section>
+        <Footer />
       </div>
     </div>
   );
