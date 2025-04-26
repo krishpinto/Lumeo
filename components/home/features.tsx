@@ -30,7 +30,7 @@ const Features = () => {
               AI-Powered event planning <br /> made{" "}
               <span className="font-subheading italic">simple</span>
             </h2>
-            <p className="text-base md:text-lg text-center text-accent-foreground/80 mt-6">
+            <p className="text-base md:text-lg text-center opacity-65 text-accent-foreground/80 mt-6">
               Transform your event planning with AI-powered automation. Create
               events faster, generate better experiences, and make smarter
               decisions in minutes.
@@ -400,6 +400,7 @@ const Features = () => {
           </div>
         </div>
       </div>
+      
     </section>
   );
 };
