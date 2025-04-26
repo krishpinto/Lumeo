@@ -1,8 +1,10 @@
-// lib/firebaseAdmin.ts
 import admin from "firebase-admin";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 if (!admin.apps.length) {
-  const serviceAccount = require("../../serviceAccountKey.json"); // adjust path if needed
+  const serviceAccount = JSON.parse(process.env.NEXT_PUBLIC_FIREBASE_SERVICE_ACCOUNT as string);
 
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
