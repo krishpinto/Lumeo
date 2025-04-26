@@ -3,20 +3,12 @@
 import { cn } from "@/lib/utils";
 import { ArrowRightIcon, LogOut, XIcon, MenuIcon } from "lucide-react";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/app/context/AuthContext";
 import { Button } from "../ui/button";
 import Menu from "./menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 // Import the SVG logo
 import Logo from "@/public/image 4.svg"; // Adjust the path based on where you place the SVG file
@@ -25,11 +17,30 @@ const Navbar = () => {
   const pathname = usePathname();
   const { currentUser, logout } = useAuth();
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Close mobile menu when route changes
   useEffect(() => {
     setIsOpen(false);
   }, [pathname]);
+
+  // Handle clicks outside the dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    if (isDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isDropdownOpen]);
 
   // Don't render navbar on dashboard pages
   if (pathname?.startsWith("/dashboard")) {
@@ -39,15 +50,18 @@ const Navbar = () => {
   const handleLogout = async () => {
     try {
       await logout();
+      setIsDropdownOpen(false);
     } catch (error) {
       console.error("Failed to logout:", error);
     }
   };
 
+  const toggleDropdown = () => {
+    setIsDropdownOpen(prev => !prev);
+  };
+
   // Determine authentication directly from currentUser
   const isAuthenticated = !!currentUser;
-
-  console.log("Auth state in Navbar:", { isAuthenticated, currentUser });
 
   return (
     <>
@@ -64,8 +78,7 @@ const Navbar = () => {
               {/* Logo */}
               <div className="flex items-center">
                 <Link href="/" className="flex items-center">
-                  <img src={Logo.src} alt="Logo" className="h-8 w-auto" />{" "}
-                  {/* Adjust height/width as needed */}
+                  <img src={Logo.src} alt="Logo" className="h-8 w-auto" />
                 </Link>
 
                 {/* Desktop Menu */}
@@ -101,46 +114,59 @@ const Navbar = () => {
                         </AvatarFallback>
                       </Avatar>
 
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 p-0"
-                          >
-                            <MenuIcon className="h-4 w-4" />
-                            <span className="sr-only">User menu</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="mt-2 w-56">
-                          <DropdownMenuLabel>
-                            <div className="flex flex-col space-y-1">
-                              <p className="text-sm font-medium leading-none">
+                      {/* Manual dropdown implementation with dark theme */}
+                      <div className="relative" ref={dropdownRef}>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 p-0 focus:ring-0 focus:ring-offset-0"
+                          onClick={toggleDropdown}
+                          aria-expanded={isDropdownOpen}
+                          aria-haspopup="true"
+                        >
+                          <MenuIcon className="h-4 w-4" />
+                          <span className="sr-only">User menu</span>
+                        </Button>
+                        
+                        {isDropdownOpen && (
+                          <div className="absolute right-0 mt-2 w-56 rounded-md bg-black/80 backdrop-blur-lg border border-gray-700 shadow-lg ring-1 ring-gray-700 focus:outline-none z-50">
+                            <div className="px-4 py-3">
+                              <p className="text-sm font-medium text-white">
                                 {currentUser?.displayName || "User"}
                               </p>
-                              <p className="text-xs leading-none text-muted-foreground">
+                              <p className="text-xs text-gray-400 truncate">
                                 {currentUser?.email}
                               </p>
                             </div>
-                          </DropdownMenuLabel>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem asChild>
-                            <Link href="/dashboard">Dashboard</Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            className="text-red-500 focus:text-red-500"
-                            onClick={handleLogout}
-                          >
-                            <LogOut className="mr-2 h-4 w-4" />
-                            <span>Logout</span>
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                            <div className="border-t border-gray-700"></div>
+                            <div className="py-1">
+                              <Link 
+                                href="/dashboard" 
+                                className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 w-full text-left"
+                                onClick={() => setIsDropdownOpen(false)}
+                              >
+                                Dashboard
+                              </Link>
+                            </div>
+                            <div className="border-t border-gray-700"></div>
+                            <div className="py-1">
+                              <button
+                                onClick={handleLogout}
+                                className="block px-4 py-2 text-sm text-red-400 hover:bg-gray-800 w-full text-left flex items-center"
+                              >
+                                <LogOut className="mr-2 h-4 w-4" />
+                                <span>Logout</span>
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </>
                 ) : (
                   <>
+                    {/* User is not logged in */}
+                    
                     <Button
                       size="sm"
                       variant="default"
@@ -148,8 +174,8 @@ const Navbar = () => {
                       className="hidden sm:flex"
                     >
                       <Link href="/auth/login">
-                      Login
-                        <ArrowRightIcon className="w-4 h-4 ml-2 hidden lg:block" />
+                        Start for free
+                        <ArrowRightIcon className="w-4 h-4 ml-2" />
                       </Link>
                     </Button>
                   </>
@@ -216,7 +242,7 @@ const Navbar = () => {
                       <Button
                         size="sm"
                         variant="outline"
-                        className="w-full flex items-center gap-2 text-red-500 hover:text-red-600 hover:bg-red-50"
+                        className="w-full flex items-center gap-2 text-red-400 hover:text-red-300 hover:bg-gray-800"
                         onClick={handleLogout}
                       >
                         <LogOut className="h-4 w-4" />
@@ -227,19 +253,11 @@ const Navbar = () => {
                     <>
                       <Button
                         size="sm"
-                        variant="outline"
-                        asChild
-                        className="w-full"
-                      >
-                        <Link href="/auth/login">Login</Link>
-                      </Button>
-                      <Button
-                        size="sm"
                         variant="default"
                         asChild
                         className="w-full"
                       >
-                        <Link href="/auth/signup">
+                        <Link href="/auth/login">
                           Start for free
                           <ArrowRightIcon className="w-4 h-4 ml-2" />
                         </Link>

@@ -61,8 +61,7 @@ export default function Login() {
           </div>
 
           {/* Login header */}
-          <h1 className="text-2xl font-medium mb-2">Login to Your App</h1>
-          <p className="text-gray-400 mb-8">Choose a method to login</p>
+          <h1 className="text-2xl pb-5 font-medium mb-2">Enter Your App</h1>
 
           {/* Error message */}
           {error && (
