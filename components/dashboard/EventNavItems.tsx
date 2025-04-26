@@ -29,41 +29,19 @@ interface EventNavItemsProps {
 export function EventNavItems({ pathname, currentEventId }: EventNavItemsProps) {
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Current Event</SidebarGroupLabel>
+      <SidebarGroupLabel>Overview</SidebarGroupLabel>
       <SidebarGroupContent>
         <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              isActive={pathname === `/dashboard/${currentEventId}`}
-              tooltip="Overview"
-            >
-              <Link href={`/dashboard/${currentEventId}`}>
-                <LayoutDashboard className="h-4 w-4 mr-2" />
-                <span>Overview</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
           
-          {/* Event Data Menu Item with sub-items */}
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              isActive={
-                pathname.includes(`/dashboard/${currentEventId}`) && 
-                (pathname.includes("?tab=details") || 
-                 pathname.includes("?tab=schedule") || 
-                 pathname.includes("?tab=budget") || 
-                 pathname.includes("?tab=tasks"))
-              }
-              tooltip="Event Data"
-            >
-              <Link href={`/dashboard/${currentEventId}?tab=details`}>
-                <FileOutput className="h-4 w-4 mr-2" />
+          {/* Event Data as a section header */}
+          <div className="mt-6 mb-2">
+            <h3 className="px-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <div className="flex items-center">
+                <FileOutput className="h-4 w-4 mr-2 text-gray-500" />
                 <span>Event Data</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+              </div>
+            </h3>
+          </div>
           
           {/* Schedule sub-item */}
           <SidebarMenuItem>
@@ -71,7 +49,6 @@ export function EventNavItems({ pathname, currentEventId }: EventNavItemsProps) 
               asChild
               isActive={pathname.includes(`/dashboard/${currentEventId}?tab=schedule`)}
               tooltip="Schedule"
-              className="pl-8"
             >
               <Link href={`/dashboard/${currentEventId}?tab=schedule`}>
                 <Clock className="h-4 w-4 mr-2" />
@@ -86,7 +63,6 @@ export function EventNavItems({ pathname, currentEventId }: EventNavItemsProps) 
               asChild
               isActive={pathname.includes(`/dashboard/${currentEventId}?tab=budget`)}
               tooltip="Budget"
-              className="pl-8"
             >
               <Link href={`/dashboard/${currentEventId}?tab=budget`}>
                 <DollarSign className="h-4 w-4 mr-2" />
@@ -101,7 +77,6 @@ export function EventNavItems({ pathname, currentEventId }: EventNavItemsProps) 
               asChild
               isActive={pathname.includes(`/dashboard/${currentEventId}?tab=tasks`)}
               tooltip="Tasks"
-              className="pl-8"
             >
               <Link href={`/dashboard/${currentEventId}?tab=tasks`}>
                 <CheckSquare className="h-4 w-4 mr-2" />
@@ -124,23 +99,29 @@ export function EventNavItems({ pathname, currentEventId }: EventNavItemsProps) 
             </SidebarMenuButton>
           </SidebarMenuItem>
           
-          {/* Documents Menu Item */}
+          {/* Social Media Menu Item */}
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              isActive={
-                pathname.includes(`/dashboard/${currentEventId}`) && 
-                (pathname.includes("?tab=documents") || 
-                 pathname.includes("?tab=view-documents"))
-              }
-              tooltip="Documents"
+              isActive={pathname.includes(`/dashboard/${currentEventId}?tab=social`)}
+              tooltip="Social Media"
             >
-              <Link href={`/dashboard/${currentEventId}?tab=documents`}>
-                <FileText className="h-4 w-4 mr-2" />
-                <span>Documents</span>
+              <Link href={`/dashboard/${currentEventId}?tab=social`}>
+                <Share2 className="h-4 w-4 mr-2" />
+                <span>Social Media</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
+          
+          {/* Documents as a section header */}
+          <div className="mt-6 mb-2">
+            <h3 className="px-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <div className="flex items-center">
+                <FileText className="h-4 w-4 mr-2 text-gray-500" />
+                <span>Documents</span>
+              </div>
+            </h3>
+          </div>
           
           {/* Create Documents sub-item */}
           <SidebarMenuItem>
@@ -148,7 +129,6 @@ export function EventNavItems({ pathname, currentEventId }: EventNavItemsProps) 
               asChild
               isActive={pathname.includes(`/dashboard/${currentEventId}?tab=documents`)}
               tooltip="Create Documents"
-              className="pl-8"
             >
               <Link href={`/dashboard/${currentEventId}?tab=documents`}>
                 <PlusCircle className="h-4 w-4 mr-2" />
@@ -163,25 +143,10 @@ export function EventNavItems({ pathname, currentEventId }: EventNavItemsProps) 
               asChild
               isActive={pathname.includes(`/dashboard/${currentEventId}?tab=view-documents`)}
               tooltip="View Documents"
-              className="pl-8"
             >
               <Link href={`/dashboard/${currentEventId}?tab=view-documents`}>
                 <FileText className="h-4 w-4 mr-2" />
                 <span>View Documents</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          
-          {/* Social Media Menu Item */}
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              isActive={pathname.includes(`/dashboard/${currentEventId}?tab=social`)}
-              tooltip="Social Media"
-            >
-              <Link href={`/dashboard/${currentEventId}?tab=social`}>
-                <Share2 className="h-4 w-4 mr-2" />
-                <span>Social Media</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useParams, useSearchParams } from "next/navigation"
-import { doc, getDoc } from "firebase/firestore"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { doc, getDoc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore"
 
 import { db } from "@/lib/firebase"
 import EventFlowDiagram from "@/components/EventFlowDiagram"
@@ -21,6 +20,7 @@ export default function EventDetailsPage() {
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState("details")
   const [selectedDocForViewing, setSelectedDocForViewing] = useState<string | null>(null)
+  const [updatingTask, setUpdatingTask] = useState<string | null>(null)
 
   const fetchEventOutput = async () => {
     if (!eventId || typeof eventId !== "string") return
@@ -83,6 +83,8 @@ export default function EventDetailsPage() {
         setActiveTab("budget")
       } else if (tabParam === "tasks") {
         setActiveTab("tasks")
+      } else if (tabParam === "details" || !tabParam) {
+        setActiveTab("details") 
       }
     }
   }, [tabParam])
@@ -125,6 +127,45 @@ export default function EventDetailsPage() {
     setActiveTab("view-documents")
   }
 
+  // New function to update task status
+  const toggleTaskStatus = async (taskIndex: number, isDone: boolean) => {
+    if (!eventId || typeof eventId !== "string" || !eventOutput) return
+    
+    try {
+      setUpdatingTask(taskIndex.toString())
+      
+      // Get the current task
+      const task = eventOutput.taskChecklist[taskIndex]
+      
+      // Create updated task with new done status
+      const updatedTask = { ...task, task_done: isDone }
+      
+      // Create a copy of the current checklist
+      const updatedChecklist = [...eventOutput.taskChecklist]
+      updatedChecklist[taskIndex] = updatedTask
+      
+      // Update the local state first for immediate UI feedback
+      const updatedEventOutput = { 
+        ...eventOutput, 
+        taskChecklist: updatedChecklist 
+      }
+      setEventOutput(updatedEventOutput)
+      
+      // Update in Firestore
+      const outputRef = doc(db, "eventOutputs", eventId)
+      await updateDoc(outputRef, {
+        taskChecklist: updatedChecklist
+      })
+      
+    } catch (error) {
+      console.error("Error updating task status:", error)
+      // Revert the local state if there was an error
+      await fetchEventOutput()
+    } finally {
+      setUpdatingTask(null)
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
@@ -145,37 +186,12 @@ export default function EventDetailsPage() {
   // Check if any documents exist
   const hasDocuments = eventOutput?.eventDocuments && Object.keys(eventOutput.eventDocuments).length > 0
 
-  return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold">{event.eventTitle}</h1>
-
-      {/* the tabs control for the events */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="w-full justify-start overflow-x-auto">
-          <TabsTrigger value="details">Event Details</TabsTrigger>
-          <TabsTrigger value="schedule" disabled={!eventOutput}>
-            Schedule
-          </TabsTrigger>
-          <TabsTrigger value="budget" disabled={!eventOutput}>
-            Budget
-          </TabsTrigger>
-          <TabsTrigger value="tasks" disabled={!eventOutput}>
-            Tasks
-          </TabsTrigger>
-          <TabsTrigger value="flow" disabled={!eventOutput}>
-            Flow Diagram
-          </TabsTrigger>
-          <TabsTrigger value="documents">Create Documents</TabsTrigger>
-          {hasDocuments && (
-            <>
-              <TabsTrigger value="view-documents">View Documents</TabsTrigger>
-              <TabsTrigger value="social">Social Media</TabsTrigger>
-            </>
-          )}
-        </TabsList>
-
-        <TabsContent value="details" className="mt-6">
-          <div className= "p-6 rounded-lg shadow-sm border">
+  // Render the appropriate content based on the active tab
+  const renderContent = () => {
+    switch(activeTab) {
+      case "details":
+        return (
+          <div className="p-6 rounded-lg shadow-sm border">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <h2 className="text-xl font-semibold mb-4">Basic Information</h2>
@@ -225,132 +241,211 @@ export default function EventDetailsPage() {
               </div>
             </div>
           </div>
-
-          {!eventOutput && (
-            <div className="mt-8 p-6 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <p className="text-lg text-yellow-700 mb-4">
-                No event data has been generated yet. Generate data to see the event schedule, budget, task list, and
-                flow diagram.
-              </p>
-              <button
-                onClick={generateEventData}
-                className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90 disabled:bg-gray-400"
-                disabled={loading}
-              >
-                {loading ? "Generating..." : "Generate Event Data"}
-              </button>
-            </div>
-          )}
-        </TabsContent>
-
-        <TabsContent value="schedule" className="mt-6">
-          {eventOutput && (
-            <div className=" p-6 rounded-lg shadow-sm border">
-              <h2 className="text-xl font-semibold mb-4">Event Schedule</h2>
-              <div className="overflow-x-auto">
-                <table className="min-w-full">
-                  <thead className="">
-                    <tr>
-                      <th className="py-2 px-4 border-b text-left">Time</th>
-                      <th className="py-2 px-4 border-b text-left">Activity</th>
+        );
+      case "schedule":
+        return eventOutput ? (
+          <div className="p-6 rounded-lg shadow-sm border">
+            <h2 className="text-xl font-semibold mb-4">Event Schedule</h2>
+            <div className="overflow-x-auto">
+              <table className="min-w-full">
+                <thead>
+                  <tr>
+                    <th className="py-2 px-4 border-b text-left">Time</th>
+                    <th className="py-2 px-4 border-b text-left">Activity</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {eventOutput.eventSchedule.map((item: any, index: number) => (
+                    <tr key={index} className={index % 2 === 0 ? "" : ""}>
+                      <td className="py-2 px-4 border-b">{item.time}</td>
+                      <td className="py-2 px-4 border-b">{item.activity}</td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {eventOutput.eventSchedule.map((item: any, index: number) => (
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ) : (
+          <div className="mt-8 p-6 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p className="text-lg text-yellow-700 mb-4">
+              No schedule data has been generated yet.
+            </p>
+            <button
+              onClick={generateEventData}
+              className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90 disabled:bg-gray-400"
+              disabled={loading}
+            >
+              {loading ? "Generating..." : "Generate Event Data"}
+            </button>
+          </div>
+        );
+      case "budget":
+        return eventOutput ? (
+          <div className="p-6 rounded-lg shadow-sm border">
+            <h2 className="text-xl font-semibold mb-4">Budget Breakdown</h2>
+            <div className="overflow-x-auto">
+              <table className="min-w-full">
+                <thead>
+                  <tr>
+                    <th className="py-2 px-4 border-b text-left">Category</th>
+                    <th className="py-2 px-4 border-b text-left">Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Object.entries(eventOutput.budgetBreakdown).map(
+                    ([category, amount]: [string, any], index: number) => (
                       <tr key={index} className={index % 2 === 0 ? "" : ""}>
-                        <td className="py-2 px-4 border-b">{item.time}</td>
-                        <td className="py-2 px-4 border-b">{item.activity}</td>
+                        <td className="py-2 px-4 border-b capitalize">{category}</td>
+                        <td className="py-2 px-4 border-b">${amount}</td>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    ),
+                  )}
+                </tbody>
+              </table>
             </div>
-          )}
-        </TabsContent>
-
-        <TabsContent value="budget" className="mt-6">
-          {eventOutput && (
-            <div className=" p-6 rounded-lg shadow-sm border">
-              <h2 className="text-xl font-semibold mb-4">Budget Breakdown</h2>
-              <div className="overflow-x-auto">
-                <table className="min-w-full ">
-                  <thead className="">
-                    <tr>
-                      <th className="py-2 px-4 border-b text-left">Category</th>
-                      <th className="py-2 px-4 border-b text-left">Amount</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {Object.entries(eventOutput.budgetBreakdown).map(
-                      ([category, amount]: [string, any], index: number) => (
-                        <tr key={index} className={index % 2 === 0 ? "" : ""}>
-                          <td className="py-2 px-4 border-b capitalize">{category}</td>
-                          <td className="py-2 px-4 border-b">${amount}</td>
-                        </tr>
-                      ),
-                    )}
-                  </tbody>
-                </table>
-              </div>
+          </div>
+        ) : (
+          <div className="mt-8 p-6 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p className="text-lg text-yellow-700 mb-4">
+              No budget data has been generated yet.
+            </p>
+            <button
+              onClick={generateEventData}
+              className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90 disabled:bg-gray-400"
+              disabled={loading}
+            >
+              {loading ? "Generating..." : "Generate Event Data"}
+            </button>
+          </div>
+        );
+      case "tasks":
+        return eventOutput ? (
+          <div className="p-6 rounded-lg shadow-sm border">
+            <h2 className="text-xl font-semibold mb-4">Task Checklist</h2>
+            <div className="space-y-2">
+              {eventOutput.taskChecklist.map((task: any, index: number) => (
+                <div key={task.id || index} className="flex items-center p-2 border rounded">
+                  <input 
+                    type="checkbox" 
+                    id={`task-${index}`} 
+                    className="mr-2" 
+                    checked={task.task_done} 
+                    onChange={(e) => toggleTaskStatus(index, e.target.checked)}
+                    disabled={updatingTask === index.toString()}
+                  />
+                  <label 
+                    htmlFor={`task-${index}`} 
+                    className={`flex-grow ${task.task_done ? 'line-through text-gray-500' : ''}`}
+                  >
+                    {task.task}
+                  </label>
+                  <span className=" text-purple-800 text-xs px-2 py-1 rounded ml-2">
+                    Complexity: {task.complexity}
+                  </span>
+                  
+                </div>
+              ))}
             </div>
-          )}
-        </TabsContent>
-
-        <TabsContent value="tasks" className="mt-6">
-          {eventOutput && (
-            <div className=" p-6 rounded-lg shadow-sm border">
-              <h2 className="text-xl font-semibold mb-4">Task Checklist</h2>
-              <div className="space-y-2">
-                {eventOutput.taskChecklist.map((task: any, index: number) => (
-                  <div key={task.id || index} className="flex items-center p-2 border rounded hover:">
-                    <input type="checkbox" id={`task-${index}`} className="mr-2" checked={task.task_done} readOnly />
-                    <label htmlFor={`task-${index}`} className="flex-grow">
-                      {task.task}
-                    </label>
-                    <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
-                      Complexity: {task.complexity}
-                    </span>
-                  </div>
-                ))}
-              </div>
+          </div>
+        ) : (
+          <div className="mt-8 p-6 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p className="text-lg text-yellow-700 mb-4">
+              No tasks have been generated yet.
+            </p>
+            <button
+              onClick={generateEventData}
+              className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90 disabled:bg-gray-400"
+              disabled={loading}
+            >
+              {loading ? "Generating..." : "Generate Event Data"}
+            </button>
+          </div>
+        );
+      case "flow":
+        return eventOutput ? (
+          <div className="p-6 rounded-lg shadow-sm border">
+            <h2 className="text-xl font-semibold mb-4">Event Flow Diagram</h2>
+            <div style={{ width: "100%", height: "600px" }}>
+              <EventFlowDiagram eventId={eventId as string} />
             </div>
-          )}
-        </TabsContent>
-
-        <TabsContent value="flow" className="mt-6">
-          {eventOutput && (
-            <div className=" p-6 rounded-lg shadow-sm border">
-              <h2 className="text-xl font-semibold mb-4">Event Flow Diagram</h2>
-              <div style={{ width: "100%", height: "600px" }}>
-                <EventFlowDiagram eventId={eventId as string} />
-              </div>
-            </div>
-          )}
-        </TabsContent>
-
-        <TabsContent value="documents" className="mt-6">
+          </div>
+        ) : (
+          <div className="mt-8 p-6 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p className="text-lg text-yellow-700 mb-4">
+              No flow diagram data has been generated yet.
+            </p>
+            <button
+              onClick={generateEventData}
+              className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90 disabled:bg-gray-400"
+              disabled={loading}
+            >
+              {loading ? "Generating..." : "Generate Event Data"}
+            </button>
+          </div>
+        );
+      case "documents":
+        return (
           <EventDocuments eventId={eventId as string} eventOutput={eventOutput} refreshEventOutput={fetchEventOutput} />
-        </TabsContent>
-
-        <TabsContent value="view-documents" className="mt-6">
-          {eventOutput?.eventDocuments && (
-            <DocumentViewer
-              documents={eventOutput.eventDocuments}
-              selectedDocument={selectedDocForViewing}
-              setSelectedDocument={setSelectedDocForViewing}
-            />
-          )}
-        </TabsContent>
-
-        <TabsContent value="social" className="mt-6">
+        );
+      case "view-documents":
+        return eventOutput?.eventDocuments ? (
+          <DocumentViewer
+            documents={eventOutput.eventDocuments}
+            selectedDocument={selectedDocForViewing}
+            setSelectedDocument={setSelectedDocForViewing}
+          />
+        ) : (
+          <div className="mt-8 p-6 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p className="text-lg text-yellow-700 mb-4">
+              No documents have been generated yet.
+            </p>
+            <button
+              onClick={() => setActiveTab("documents")}
+              className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90"
+            >
+              Create Documents
+            </button>
+          </div>
+        );
+      case "social":
+        return (
           <SocialMediaPosts
             eventId={eventId as string}
             eventOutput={eventOutput}
             refreshEventOutput={fetchEventOutput}
           />
-        </TabsContent>
-      </Tabs>
+        );
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div>
+      {/* Title section with more prominence */}
+      <div className="mb-8 pb-4 border-b">
+        <h1 className="text-4xl font-bold text-primary">{event.eventTitle}</h1>
+        <p className="text-gray-500 mt-2">{event.eventType} · {event.eventDate}</p>
+      </div>
+      
+      {!eventOutput && activeTab === "details" && (
+        <div className="mb-8 p-6 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-lg text-yellow-700 mb-4">
+            No event data has been generated yet. Generate data to see the event schedule, budget, task list, and
+            flow diagram.
+          </p>
+          <button
+            onClick={generateEventData}
+            className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90 disabled:bg-gray-400"
+            disabled={loading}
+          >
+            {loading ? "Generating..." : "Generate Event Data"}
+          </button>
+        </div>
+      )}
+
+      {/* Render the active tab content */}
+      {renderContent()}
     </div>
   )
 }

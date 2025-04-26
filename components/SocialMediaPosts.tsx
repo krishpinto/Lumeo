@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { Clipboard, Check } from "lucide-react";
-import { twitter } from "./logo";
+import { twitter, gmail, instagram, facebook, linkedin } from "./logo";
 
 interface SocialMediaPostsProps {
   eventId: string;
@@ -23,11 +23,11 @@ export default function SocialMediaPosts({
 
   // Available platforms
   const platforms = [
-    { id: "twitter", name: "Twitter", icon: twitter, color: "bg-pink-600" },
-    { id: "instagram", name: "Instagram", icon: "📸", color: "bg-pink-600" },
-    { id: "facebook", name: "Facebook", icon: "👍", color: "bg-blue-700" },
-    { id: "linkedin", name: "LinkedIn", icon: "💼", color: "bg-blue-800" },
-    { id: "email", name: "Email", icon: "📧", color: "bg-gray-600" },
+    { id: "twitter", name: "Twitter", icon: twitter, color: "bg-black-600" },
+    { id: "instagram", name: "Instagram", icon: instagram, color: "bg-black-600" },
+    { id: "facebook", name: "Facebook", icon: facebook, color: "bg-black-600" },
+    { id: "linkedin", name: "LinkedIn", icon: linkedin, color: "bg-black-600" },
+    { id: "email", name: "Email", icon: gmail, color: "bg-black-600" },
   ];
 
   const generatePost = async () => {
@@ -135,8 +135,8 @@ export default function SocialMediaPosts({
                 key={platform.id}
                 className={`border rounded-lg p-3 cursor-pointer transition-all ${
                   selectedPlatform === platform.id
-                    ? "border-blue-500  bg-gray-800 shadow-[0_0_10px_rgba(59,130,246,0.5)]"
-                    : "border-gray-700  hover:border-blue-400 hover:border-opacity-50"
+                    ? "border-purple-700   shadow-[0_0_10px_rgba(59,130,246,0.5)]"
+                    : "border  hover:border-purple-700 hover:border-opacity-50"
                 }`}
                 onClick={() => setSelectedPlatform(platform.id)}
               >
@@ -157,7 +157,7 @@ export default function SocialMediaPosts({
         </div>
 
         {/* Platform info */}
-        <div className="p-4 bg-gray-800 rounded-lg border border-gray-700">
+        <div className="p-4 rounded-lg border ">
           <h3 className="font-medium mb-2 text-gray-200">
             {selectedPlatform.charAt(0).toUpperCase() +
               selectedPlatform.slice(1)}{" "}
@@ -185,7 +185,7 @@ export default function SocialMediaPosts({
           <button
             onClick={generatePost}
             disabled={loading || !eventOutput}
-            className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-700 disabled:text-gray-400 flex items-center justify-center"
+            className="w-full py-3 border-grey-800 border-3 text-white rounded-lg hover:bg-gray-900 disabled:bg-gray-700 disabled:text-gray-400 flex items-center justify-center"
           >
             {loading ? (
               <>

@@ -95,8 +95,8 @@ export default function EventDocuments({ eventId, eventOutput, refreshEventOutpu
                 key={docType.id}
                 className={`border rounded-lg p-4 cursor-pointer transition-all ${
                   selectedDocType === docType.id
-                    ? "border-blue-500  bg-gray-800 shadow-[0_0_10px_rgba(59,130,246,0.5)]"
-                    : "border-gray-700  hover:border-blue-400 hover:border-opacity-50"
+                    ? "border-purple-700 shadow-[0_0_10px_rgba(59,130,246,0.5)]"
+                    : "border hover:border-purple-700 hover:border-opacity-50"
                 }`}
                 onClick={() => setSelectedDocType(docType.id)}
               >
@@ -127,13 +127,13 @@ export default function EventDocuments({ eventId, eventOutput, refreshEventOutpu
                 key={theme.id}
                 className={`border rounded-lg p-3 cursor-pointer transition-all ${
                   selectedTheme === theme.id
-                    ? "border-blue-500 bg-gray-800 shadow-[0_0_10px_rgba(59,130,246,0.5)]"
-                    : "border-gray-700  hover:border-blue-400 hover:border-opacity-50"
+                    ? "border-purple-700 shadow-[0_0_10px_rgba(59,130,246,0.5)]"
+                    : "border hover:border-purple-700 hover:border-opacity-50"
                 }`}
                 onClick={() => setSelectedTheme(theme.id)}
               >
                 <div className="text-center">
-                  <span className="block h-8 w-8 mx-auto mb-2 rounded-full bg-gradient-to-br from-blue-400 to-purple-500"></span>
+                  <span className="block h-8 w-8 mx-auto mb-2 rounded-full bg-gradient-to-br from-purple-400 to-purple-700"></span>
                   <h3 className="font-medium text-gray-200">{theme.name}</h3>
                 </div>
               </div>
@@ -146,7 +146,7 @@ export default function EventDocuments({ eventId, eventOutput, refreshEventOutpu
           <button
             onClick={generateDocument}
             disabled={loading || !eventOutput}
-            className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-700 disabled:text-gray-400 flex items-center justify-center"
+            className="w-full py-3 border-grey-800 border-3 text-white rounded-lg hover:bg-gray-900 disabled:bg-gray-700 disabled:text-gray-400 flex items-center justify-center"
           >
             {loading ? (
               <>

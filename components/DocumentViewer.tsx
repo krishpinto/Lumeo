@@ -73,7 +73,7 @@ export default function DocumentViewer({ documents, selectedDocument, setSelecte
 
   return (
     <div className={` rounded-lg shadow-lg ${fullscreen ? 'fixed inset-0 z-50' : ''}`}>
-      <div className="flex items-center justify-between p-4  border-b border-gray-700 rounded-t-lg">
+      <div className="flex items-center justify-between p-4 border-b border-gray-700 rounded-t-lg">
         <h2 className="text-xl font-semibold text-gray-100">Document Viewer</h2>
         <div className="flex space-x-2">
           <button 
@@ -103,7 +103,7 @@ export default function DocumentViewer({ documents, selectedDocument, setSelecte
                 onClick={() => setSelectedDocument(docType)}
                 className={`w-full text-left p-3 rounded flex items-center transition-all ${
                   selectedDocument === docType 
-                    ? ' text-blue-300 border border-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.4)]' 
+                    ? ' text-purple-300 border border-purple-700 shadow-[0_0_8px_rgba(59,130,246,0.4)]' 
                     : 'hover:bg-gray-700 text-gray-300 border border-transparent'
                 }`}
               >
@@ -130,14 +130,14 @@ export default function DocumentViewer({ documents, selectedDocument, setSelecte
               <h3 className="font-medium mb-2 text-gray-200">Actions</h3>
               <button
                 onClick={downloadDocument}
-                className="w-full py-2 px-4 bg-green-600 text-white rounded hover:bg-green-700 transition-colors flex items-center justify-center"
+                className="w-full py-2 px-4 border border-green-700 text-white rounded hover:bg-gray-900 transition-colors flex items-center justify-center"
               >
                 <span className="mr-2">💾</span>
                 Download
               </button>
               <button
                 onClick={printDocument}
-                className="w-full py-2 px-4 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors flex items-center justify-center"
+                className="w-full py-2 px-4 border border-purple-700 text-white rounded hover:bg-gray-900 transition-colors flex items-center justify-center"
               >
                 <span className="mr-2">🖨️</span>
                 Print
@@ -155,7 +155,7 @@ export default function DocumentViewer({ documents, selectedDocument, setSelecte
                   {selectedDocument.charAt(0).toUpperCase() + selectedDocument.slice(1)} Preview
                 </h3>
                 {documents[selectedDocument]?.theme && (
-                  <span className="bg-blue-900/40 text-blue-300 text-xs py-1 px-3 rounded-full border border-blue-700">
+                  <span className="bg-purple-900/40 text-purple-300 text-xs py-1 px-3 rounded-full border border-purple-700">
                     Theme: {documents[selectedDocument].theme.charAt(0).toUpperCase() + documents[selectedDocument].theme.slice(1)}
                   </span>
                 )}
