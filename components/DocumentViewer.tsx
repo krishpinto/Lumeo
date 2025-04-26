@@ -63,8 +63,8 @@ export default function DocumentViewer({ documents, selectedDocument, setSelecte
 
   if (Object.keys(documents).length === 0) {
     return (
-      <div className="bg-gray-900 p-6 rounded-lg border border-yellow-700">
-        <p className="text-yellow-400">
+      <div className="bg-gray-900 p-6 rounded-lg border border-gray-700">
+        <p className="text-400">
           No documents have been generated yet. Go to the "Create Documents" tab to generate event documents.
         </p>
       </div>

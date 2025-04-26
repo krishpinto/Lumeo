@@ -395,8 +395,8 @@ export default function EventDetailsPage() {
             setSelectedDocument={setSelectedDocForViewing}
           />
         ) : (
-          <div className="mt-8 p-6 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <p className="text-lg text-yellow-700 mb-4">
+          <div className="mt-8 p-6 bg-black-900 border border-purple-900 rounded-lg">
+            <p className="text-lg mb-4">
               No documents have been generated yet.
             </p>
             <button
@@ -429,8 +429,8 @@ export default function EventDetailsPage() {
       </div>
       
       {!eventOutput && activeTab === "details" && (
-        <div className="mb-8 p-6 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <p className="text-lg text-yellow-700 mb-4">
+        <div className="mt-8 p-6 bg-black-900 border border-purple-900 rounded-lg">
+            <p className="text-lg mb-4">
             No event data has been generated yet. Generate data to see the event schedule, budget, task list, and
             flow diagram.
           </p>
