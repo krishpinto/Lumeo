@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
-import { v4 as uuidv4 } from "uuid"; // For unique taskChecklist item IDs
+import { v4 as uuidv4 } from "uuid";
 
-const ai = new GoogleGenAI({ apiKey: process.env.NEXT_PUBLIC_GOOGLE_API_KEY });
+const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GOOGLE_API_KEY || "");
 
 export async function POST(req: NextRequest) {
   try {
@@ -69,7 +69,7 @@ Output JSON format (strictly match this):
     "decorations": 400,
     ...
   },
-  "taskChecklist": [ "Book venue", "Confirm vendors", ... ],
+  "taskChecklist": [ { "task": "Book venue", "complexity": 70 }, ... ],
   "eventFlowDiagram": {
     "nodes": [...],
     "edges": [...]
@@ -80,12 +80,13 @@ IMPORTANT: Return only valid JSON. Do not include any additional text or explana
 `;
 
     console.log("✉️ Sending prompt to Gemini...");
-    const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash",
-      contents: prompt,
-    });
-
-    const cleanedResponse = (response.text ?? "")
+    
+    // ✅ FIXED: Use correct SDK
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+    
+    const cleanedResponse = (response.text() ?? "")
       .replace(/```json/g, "")
       .replace(/```/g, "");
 

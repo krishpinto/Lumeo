@@ -1,10 +1,10 @@
 // app/api/generate/eventdocuments/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 
-const ai = new GoogleGenAI({ apiKey: process.env.NEXT_PUBLIC_GOOGLE_API_KEY });
+const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GOOGLE_API_KEY || "");
 
 export async function POST(req: NextRequest) {
   try {
@@ -110,12 +110,13 @@ IMPORTANT: Include all styling inline. Make it suitable for printing or sending 
     }
 
     console.log("✉️ Sending prompt to Gemini...");
-    const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash",
-      contents: prompt,
-    });
-
-    const htmlContent = response.text || "";
+    
+    // ✅ FIXED: Use correct SDK
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+    
+    const htmlContent = response.text() || "";
     console.log("📄 Generated HTML content");
 
     // Create the document data

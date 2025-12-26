@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 
-const ai = new GoogleGenAI({ apiKey: process.env.NEXT_PUBLIC_GOOGLE_API_KEY });
+const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GOOGLE_API_KEY || "");
 
 // Platform character limits and content guidelines
 const PLATFORM_CONSTRAINTS = {
@@ -110,12 +110,13 @@ Return ONLY the post content, nothing else. No explanations or additional text. 
 `;
 
     console.log("✉️ Sending prompt to Gemini...");
-    const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash",
-      contents: prompt,
-    });
-
-    const postContent = response.text || "";
+    
+    // ✅ FIXED: Use correct SDK
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+    
+    const postContent = response.text() || "";
     console.log("📄 Generated post content");
 
     // Create the post data
